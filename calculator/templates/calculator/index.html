@@ -1,0 +1,175 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel = "shortcut icon" type = "x-icon" href="{% static 'calculator/coln.jpg' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <!-- SEO Meta Tags -->
+    <title>Tanzania Salary Calculator | PAYE, NSSF, HESLB, NHIF Deductions | Salary Slip Generator</title>
+    <meta name="description" content="Free Tanzania salary calculator. Calculate PAYE, NSSF, HESLB, NHIF deductions. Generate salary slips. Accurate take-home pay calculations for Tanzanian employees.">
+    <meta name="keywords" content="tanzania salary calculator, paye tanzania, nssf tanzania, heslb, nhif tanzania, salary slip, take home pay, payroll tanzania, gross salary, net salary, tax calculator tanzania">
+    <meta name="author" content="Cornel Mtavangu, Computer Engineer">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/tanzania-salary-calculator/">
+    <meta property="og:title" content="Tanzania Salary Calculator | PAYE, NSSF, HESLB, NHIF Deductions">
+    <meta property="og:description" content="Calculate your salary deductions and take-home pay in Tanzania. Free salary slip generator.">
+    <meta property="og:image" content="https://yourdomain.com/images/salary-calculator-og.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourdomain.com/tanzania-salary-calculator/">
+    <meta property="twitter:title" content="Tanzania Salary Calculator | PAYE, NSSF, HESLB, NHIF Deductions">
+    <meta property="twitter:description" content="Calculate your salary deductions and take-home pay in Tanzania. Free salary slip generator.">
+    <meta property="twitter:image" content="https://yourdomain.com/images/salary-calculator-twitter.jpg">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Tanzania Salary Calculator",
+      "description": "Free online salary calculator for Tanzania to compute PAYE, NSSF, HESLB, and NHIF deductions",
+      "applicationCategory": "Finance",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Cornel Mtavangu"
+      }
+    }
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .calculator {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body class="bg-light p-4">
+<div class="container">
+
+    <div class="calculator">
+        <div class="header">
+            <h1 class="text-center">Tanzania Salary Calculator</h1>
+            <p class="text-center text-muted">Calculate your take-home pay after PAYE, NSSF, HESLB & NHIF deductions</p>
+            <p class="text-center text-muted">Tanzania Salary Calculator &copy; 2025. Based on current Tanzania tax laws. cc <a href="https://www.linkedin.com/in/cornelmtavangu/">McColn Inc.</a></p>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="salary_type" class="form-label">Salary Type</label>
+                    <select name="salary_type" class="form-select" required>
+                        <option value="gross">Gross Salary (Salary Before Deductions)</option>
+                        <option value="net">Net Salary (Salary After Deductions)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="salary_amount" class="form-label">Enter Salary (TZS)</label>
+                    <input type="number" step="any" class="form-control" name="salary_amount" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="apply_paye" id="apply_paye" checked>
+                        <label class="form-check-label" for="apply_paye">Apply PAYE</label>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="apply_nssf" id="apply_nssf" checked>
+                        <label class="form-check-label" for="apply_nssf">Apply NSSF (10%)</label>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <input class="form-check-input" type="checkbox" name="apply_heslb" id="apply_heslb" checked>
+                    <label class="form-check-label" for="apply_heslb">Apply HESLB (15%)</label>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="apply_nhif" id="apply_nhif" checked>
+                        <label class="form-check-label" for="apply_nhif">Apply NHIF (3%)</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Calculate</button>
+        </form>
+
+        {% if result %}
+            {% if result.error %}
+                <div class="alert alert-danger mt-3">{{ result.error }}</div>
+            {% else %}
+                <div id="resultSection" class="mt-4">
+                <h5>Results:</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Gross Salary: <strong>{{ result.gross|floatformat:0|intcomma }}</strong> TZS</li>
+                    {% if result.paye is not None %}
+                    <li class="list-group-item">PAYE: <strong>{{ result.paye|floatformat:0|intcomma }}</strong> TZS</li>
+                    {% endif %}
+                    {% if result.nssf is not None %}
+                    <li class="list-group-item">PSSSF/NSSF (10%): <strong>{{ result.nssf|floatformat:0|intcomma }}</strong> TZS</li>
+                    {% endif %}
+                    {% if result.heslb is not None %}
+                    <li class="list-group-item">HESLB (15%): <strong>{{ result.heslb|floatformat:0|intcomma }}</strong> TZS</li>
+                    {% endif %}
+                    {% if result.nhif is not None %}
+                    <li class="list-group-item">NHIF (3%): <strong>{{ result.nhif|floatformat:0|intcomma }}</strong> TZS</li>
+                    {% endif %}
+                    <li class="list-group-item bg-success text-white">Take-Home Pay: <strong>{{ result.take_home|floatformat:0|intcomma }}</strong> TZS</li>
+                </ul>
+            </div>
+            <button onclick="downloadPDF()" class="btn btn-success mt-3">Download as PDF</button>
+
+            {% endif %}
+        {% endif %}
+    </div>
+
+
+
+    <script>
+        function downloadPDF() {
+            const element = document.getElementById('resultSection');
+            const opt = {
+                margin:       0.5,
+                filename:     'salary_slip.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+
+</div>
+</body>
+</html>
+
