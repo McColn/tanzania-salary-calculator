@@ -16,7 +16,7 @@ def salary_calculator(request):
                 nssf = gross * 0.10 if apply_nssf else 0
                 heslb = gross * 0.15 if apply_heslb else 0
                 nhif = gross * 0.03 if apply_nhif else 0
-                taxable = gross - (nssf + heslb + nhif)
+                taxable = gross - (nssf)
                 if apply_paye:
                     if taxable <= 270000:
                         paye = 0
